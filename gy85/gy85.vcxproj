@@ -74,7 +74,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GY85Lib.h" />
     <ClInclude Include="Visual Micro\.gy85.vsarduino.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GY85Lib.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
