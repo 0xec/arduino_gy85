@@ -11,6 +11,14 @@
 #define HMC5883 0x1E //0011110b, I2C 7bit address of HMC5883
 #define ITG3200 0x68
 
+
+float g_offx = 0;
+float g_offy = 0;
+float g_offz = 0;
+
+
+void ReadGyro(float* fgx, float* fgy, float* fgz);
+
 void SetAccelerometor()
 {
     Wire.beginTransmission(ADXL345);     // start transmission to device
@@ -55,8 +63,32 @@ void SetGyro()
     Wire.write(0x17);
     Wire.write(0x00);
     Wire.endTransmission();
+
+    GyroCalibrate();
 }
 
+void GyroCalibrate()
+{
+    float tmpx = 0;
+    float tmpy = 0;
+    float tmpz = 0;
+
+    g_offx = 0;
+    g_offy = 0;
+    g_offz = 0;
+
+    for (uint8_t i = 0; i < 10; i++) { //take the mean from 10 gyro probes and divide it from the current probe
+        delay(10);
+        float gpx, gpy, gpz;
+        ReadGyro(&gpx, &gpy, &gpz);
+        tmpx += gpx;
+        tmpy += gpy;
+        tmpz += gpz;
+    }
+    g_offx = tmpx / 10.0f;
+    g_offy = tmpy / 10.0f;
+    g_offz = tmpz / 10.0f;
+}
 void setup()
 {
     Serial.begin(9600);
@@ -113,7 +145,7 @@ void ReadCompass()
 }
 
 
-void ReadGyro()
+void ReadGyro(float* fgx, float* fgy, float* fgz)
 {
     Wire.beginTransmission(ITG3200);
     Wire.write(0x1B);
@@ -126,10 +158,12 @@ void ReadGyro()
     int16_t gy = Wire.read() << 8 | Wire.read();
     int16_t gz = Wire.read() << 8 | Wire.read();
 
-    Serial.print(gx); Serial.print(",");
-    Serial.print(gy); Serial.print(",");
-    Serial.print(gz); Serial.print(",");
-
+    //Serial.print(gx); Serial.print(",");
+    //Serial.print(gy); Serial.print(",");
+    //Serial.print(gz); Serial.print(",");
+    *fgx = gx - g_offx;
+    *fgy = gy - g_offy;
+    *fgz = gz - g_offz;
 
 }
 
@@ -137,10 +171,12 @@ void ReadGyro()
 // the loop function runs over and over again until power down or reset
 void loop()
 {
+    float gx, gy, gz;
 
-
-    ReadGyro();
-
+    ReadGyro(&gx, &gy, &gz);
+    Serial.print(gx); Serial.print(",");
+    Serial.print(gy); Serial.print(",");
+    Serial.print(gz); Serial.print(",");
 
     Serial.println();
     delay(10);
