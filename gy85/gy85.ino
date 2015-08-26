@@ -9,7 +9,7 @@ void setup()
     Wire.begin();
 
     gy85sensor.initialize();
-    gy85sensor.reset_all_to_zero();
+    //  gy85sensor.reset_all_to_zero();
 }
 
 
@@ -24,9 +24,9 @@ void loop()
     gy85sensor.ReadGyro(&gx, &gy, &gz);
     gy85sensor.ReadCompass(&cx, &cy, &cz);
 
-    Serial.print(cx); Serial.print(",");
-    Serial.print(cy); Serial.print(",");
-    Serial.print(cz); Serial.print(",");
+    Serial.print(gx); Serial.print(",");
+    Serial.print(gy); Serial.print(",");
+    Serial.print(gz); Serial.print(",");
 
     Serial.println();
     delay(10);
